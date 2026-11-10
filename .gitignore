@@ -1,0 +1,11 @@
+# Your data. Digests, reports, snapshots and the archive hold quotes from your sessions
+# and copies of your memory files. Keep these lines in any public fork.
+digests/
+reports/
+snapshots/
+archive/
+runs/
+state.json
+
+__pycache__/
+*.pyc

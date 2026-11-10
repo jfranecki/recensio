@@ -1,0 +1,3 @@
+# Tools here write LF and snapshots must stay byte-for-byte copies of the memory stores:
+# no line-ending conversion anywhere in this repo.
+* -text

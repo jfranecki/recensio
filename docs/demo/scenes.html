@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>recensio: README clip scenes</title>
+<!--
+  The drawn scenes behind the README clips (overview, digest, dream, apply), in the
+  "manuscript" style. build_demo.py loads this page, hands it the captured demo story,
+  and photographs it one step at a time. The page shows nothing on its own: to look at a
+  step, run build_demo.py with --frames and open the PNGs.
+-->
+<style>
+  :root { --bg: #f5edd8; --ink: #2a2016; --muted: #8a785a; --faint: #c5b594; --line: #8d7754; --red: #a3171c; --green: #1f6b3a; --amber: #8a5a00;
+          --serif: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif; --mono: "Cascadia Mono", Consolas, "Courier New", monospace; }
+  html, body { margin: 0; background: var(--bg); }
+  * { box-sizing: border-box; }
+  #frame { width: 900px; height: 520px; padding: 22px 30px 16px; position: relative; overflow: hidden; color: var(--ink);
+           font-family: var(--serif); display: flex; flex-direction: column; gap: 10px; }
+  #frame::before { content: ""; position: absolute; inset: 6px; border: 3px double var(--line); pointer-events: none; }
+  [data-s] { visibility: hidden; } [data-s].shown { visibility: visible; }
+
+  .top { display: flex; justify-content: space-between; align-items: baseline; }
+  .brand { font-size: 27px; font-variant: small-caps; letter-spacing: .08em; line-height: 1; }
+  .brand::first-letter { color: var(--red); font-size: 36px; }
+  .brand small { font-size: 14px; font-style: italic; font-variant: normal; letter-spacing: 0; color: var(--muted); margin-left: 12px; }
+  .tabs { display: flex; gap: 16px; font-style: italic; font-size: 15px; color: var(--faint); }
+  .tabs span { border-bottom: 1.5px solid currentColor; padding: 0 2px 1px; }
+  .tabs .done { color: var(--ink); } .tabs .on { color: var(--red); }
+
+  fieldset.box { border: 3px double var(--line); margin: 0; padding: 2px 12px 9px; min-width: 0; position: relative; }
+  .box > legend { font-variant: small-caps; font-style: italic; letter-spacing: .08em; font-size: 15px; color: var(--muted); padding: 0 7px; white-space: nowrap; }
+  .box > legend .plain { font-variant: normal; font-style: normal; letter-spacing: 0; font-size: 13px; }
+  .box.on { border-color: var(--red); } .box.on > legend { color: var(--red); }
+  .row { font-size: 14.5px; line-height: 1.72; white-space: nowrap; display: flex; justify-content: space-between; gap: 6px; }
+  .row .r { color: var(--muted); font-size: 12.5px; }
+  .row em { font-style: normal; display: inline-block; width: 15px; }
+  .ins { text-decoration: underline; text-decoration-color: var(--green); text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
+  .del { text-decoration: line-through; text-decoration-color: var(--red); text-decoration-thickness: 1.5px; }
+  .tick, .row .r.tick { color: var(--green); font-size: 15px; } .cross, .row .r.cross { color: var(--red); font-size: 15px; }
+  .rub { color: var(--red); } .grn { color: var(--green); } .amb { color: var(--amber); } .mut { color: var(--muted); } .it { font-style: italic; }
+  .foot { font-size: 12.5px; font-style: italic; color: var(--muted); line-height: 1.5; white-space: nowrap; }
+  .foot.wrap { white-space: normal; }
+
+  .arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--faint); }
+  .arrow b { font-style: italic; font-weight: 400; font-size: 16px; }
+  .arrow i { display: block; width: 44px; height: 1.5px; background: currentColor; position: relative; }
+  .arrow i::after { content: ""; position: absolute; right: -2px; top: -4.5px; border-left: 9px solid currentColor; border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+  .arrow.done { color: var(--ink); } .arrow.on { color: var(--red); }
+
+  .caps { position: relative; height: 72px; flex: none; }
+  .cap { position: absolute; inset: 0; font-size: 18px; line-height: 1.38; }
+  .cap b { display: block; font-variant: small-caps; font-weight: 400; font-size: 16px; color: var(--red); letter-spacing: .06em; margin-bottom: 1px; }
+  .cap b::before { content: "\261E\00a0"; font-variant: normal; }
+
+  /* overview */
+  .pipe { display: grid; grid-template-columns: .92fr 62px .92fr 62px 1.42fr 62px 1.28fr; flex: 1; min-height: 0; }
+
+  /* digest */
+  .two { display: grid; grid-template-columns: 1.08fr 1fr; gap: 18px; flex: 1; min-height: 0; }
+  .t { font-family: var(--mono); font-size: 11.5px; line-height: 1.5; margin-top: 3px; padding-left: 54px; text-indent: -54px; color: var(--muted); }
+  .t b { font-weight: 400; display: inline-block; width: 54px; text-indent: 0; color: var(--faint); }
+  .t .note { display: block; text-indent: 0; font-family: var(--serif); font-style: italic; font-size: 12.5px; }
+  .t.you { color: var(--ink); } .t.you.lit { color: var(--red); } .t.you.lit b { color: var(--red); }
+  .t.dim { color: var(--faint); }
+  .sec { font-size: 13.5px; line-height: 1.42; margin-top: 5px; }
+  .sec h4 { margin: 0; font-size: 13px; font-weight: 400; font-variant: small-caps; letter-spacing: .07em; color: var(--muted); }
+  .sec.hot h4 { color: var(--red); }
+  .tally { display: flex; justify-content: space-between; align-items: baseline; font-size: 15px; border-top: 1px solid var(--line); padding-top: 6px; flex: none; }
+  .tally .n { font-size: 19px; }
+
+  /* dream */
+  .three { display: grid; grid-template-columns: 172px 1fr 226px; gap: 14px; flex: 1; min-height: 0; }
+  .stack { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+  .verb { margin-top: 5px; }
+  .verb h4 { margin: 0; font-size: 15px; font-weight: 400; font-variant: small-caps; letter-spacing: .08em; color: var(--faint); }
+  .verb h4 span { font-variant: normal; font-style: italic; letter-spacing: 0; font-size: 13.5px; margin-left: 8px; }
+  .verb.on h4 { color: var(--red); } .verb.done h4 { color: var(--ink); }
+  .find { font-size: 13px; line-height: 1.4; padding-left: 14px; text-indent: -14px; }
+  .find q { font-style: italic; quotes: "\201C" "\201D"; }
+
+  /* apply */
+  .term { font-family: var(--mono); font-size: 11.8px; line-height: 1.5; white-space: pre; overflow: hidden; }
+  .term .cmd { color: var(--ink); } .term .cmd::before { content: "$ "; color: var(--red); }
+  .term .typing::after { content: "\2588"; color: var(--red); }
+  .term .out { color: var(--muted); }
+  .term .ok { color: var(--green); }
+  .lower { display: grid; grid-template-columns: 1fr 250px; gap: 16px; flex: none; }
+  .idx { font-size: 12.6px; line-height: 1.55; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+</style>
+</head>
+<body>
+<div id="frame"></div>
+<script>
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const MARK = { add: ['+', 'grn'], update: ['~', 'amb'], delete: ['−', 'rub'] };
+const head = (tabs) => `<div class="top"><div class="brand">Recensio<small>memory, reviewed</small></div>
+  <div class="tabs"><span data-c="${tabs[0]}">i · /digest</span><span data-c="${tabs[1]}">ii · /dream</span><span data-c="${tabs[2]}">iii · /review</span></div></div>`;
+const cap = (s, e, head, text) => `<div class="cap" data-s="${s}"${e == null ? '' : ` data-e="${e}"`}><b>${head}</b>${text}</div>`;
+
+const SCENES = {
+  // ------------------------------------------------------------------ the whole loop
+  overview: {
+    h: 440, steps: 24, holds: { default: 340, 0: 1900, 1: 700, 6: 1200, 7: 800, 11: 1500, 12: 800, 16: 1200, 17: 1000, 18: 650, 19: 650, 20: 650, 21: 650, 22: 650, 23: 3800 },
+    html(d) {
+      const sess = d.sessions.map(s => `<div class="row"><span>${s.id}</span><span class="r">${s.mb} MB</span></div>`).join('');
+      const digs = d.sessions.map((s, i) => `<div class="row" data-s="${2 + i}"><span>${s.id}.md</span><span class="r tick">✓</span></div>`).join('');
+      const props = d.proposals.map((p, i) => { const [m, c] = MARK[p.action], ok = p.decision === 'accept';
+        return `<div class="row" data-s="${8 + i}"><span><em class="${c}">${m}</em>${esc(p.file)}</span><span class="r ${ok ? 'tick' : 'cross'}" data-s="${13 + i}">${ok ? '✓' : '✗'}</span></div>`; }).join('');
+      const mem = d.memory_before.map(f => {
+        if (f === 'deploy-steps.md') return `<div class="row"><span data-c="19:ins">${f}</span><span class="r amb" data-s="19">revised</span></div>`;
+        if (f === 'node-16-pin.md') return `<div class="row"><span>${f}</span><span class="r it" data-s="21">kept</span></div>`;
+        return `<div class="row"><span>${f}</span></div>`; }).join('')
+        + `<div class="row" data-s="20"><span class="ins">run-tests-first.md</span><span class="r grn">new</span></div>`;
+      return head(['1:on:7,7:done', '7:on:12,12:done', '12:on:17,17:done']) + `
+        <div class="pipe">
+          <fieldset class="box"><legend>sessions</legend>${sess}<div class="foot" style="margin-top:6px">${d.pending_mb} MB in all</div></fieldset>
+          <div class="arrow" data-c="1:on:7,7:done"><b>/digest</b><i></i></div>
+          <fieldset class="box" data-c="1:on:7"><legend>digests</legend>${digs}<div class="foot" style="margin-top:6px" data-s="6">${d.digest_kb_total} KB in all</div></fieldset>
+          <div class="arrow" data-c="7:on:12,12:done"><b>/dream</b><i></i></div>
+          <fieldset class="box" data-c="7:on:17"><legend>proposals</legend>${props}<div class="foot" style="margin-top:6px" data-s="11" data-e="13">nothing written yet</div></fieldset>
+          <div class="arrow" data-c="12:on:17,17:done"><b>/review</b><i></i></div>
+          <fieldset class="box" data-c="17:on"><legend>memory</legend>${mem}
+            <div class="foot" style="margin-top:6px" data-s="18">snapshot taken first</div>
+            <div class="foot wrap" data-s="22"><span class="grn">+</span> ask-before-deleting.md,<br>&nbsp;&nbsp;for every project</div></fieldset>
+        </div>
+        <div class="caps">
+          ${cap(0, 1, 'your sessions', 'Your past sessions hold what you corrected, repeated and decided. Claude Code deletes them after a while.')}
+          ${cap(1, 7, 'i · /digest', 'Each session becomes a short digest of what mattered.')}
+          ${cap(7, 12, 'ii · /dream', 'A dreamer reads your memory and every digest, then proposes changes. Nothing is written yet.')}
+          ${cap(12, 17, 'iii · /review', 'You accept, reject or edit each proposal.')}
+          ${cap(17, null, 'applied', 'Only what you accepted is written, after a snapshot. What you rejected leaves your files untouched.')}
+        </div>`;
+    },
+  },
+
+  // ------------------------------------------------------------------ what a digest is
+  digest: {
+    h: 500, steps: 20, holds: { default: 300, 0: 1200, 8: 900, 9: 1900, 10: 700, 11: 900, 12: 1700, 13: 900, 14: 1500, 15: 900, 16: 900, 17: 1200, 18: 1500, 19: 3800 },
+    html(d) {
+      const first = d.sessions[0], shown = d.chunk_turns.slice(0, 8);
+      const lines = shown.map((t, i) => { const you = t.kind.startsWith('USER');
+        const label = you ? 'you' : t.kind === 'CLAUDE' ? 'claude' : 'tool';
+        const note = t.kind.includes('typed while') ? '<span class="note">typed while Claude was working</span>' : '';
+        return `<div class="t ${you ? 'you' : ''}" data-s="${1 + i}" data-c="${you ? '9:lit' : '9:dim'}"><b>${label}</b>${esc(t.text)}${note}</div>`; }).join('')
+        + `<div class="t dim" data-s="8"><b>…</b>${d.chunk_turns.length - shown.length} more tool calls, megabytes of output</div>`;
+      const count = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+      const g = d.digest_sample, strip = s => esc(String(s).replace(/^\[[^\]]+\]\s*/, '').replace(/\n\s+/g, ' '));
+      const sec = (s, name, body, hot) => `<div class="sec ${hot ? 'hot' : ''}" data-s="${s}"><h4>${name}</h4>${body}</div>`;
+      return head(['0:on', '99:on', '99:on']) + `
+        <div class="two">
+          <fieldset class="box"><legend>one session <span class="plain">· ${first.id} · ${first.mb} MB</span></legend>${lines}</fieldset>
+          <fieldset class="box" data-c="10:on"><legend>its digest <span class="plain">· ${first.id}.md · ${d.digest_kb[first.id]} KB</span></legend>
+            ${sec(11, 'summary', strip(g['Summary'][0]))}
+            ${sec(12, 'corrections from the user', strip(g['Corrections from the user'][0]), true)}
+            ${sec(13, 'decisions and state changes', strip(g['Decisions and state changes'][0]))}
+            ${sec(14, 'candidate memories', strip(g['Candidate memories'][0]))}
+          </fieldset>
+        </div>
+        <div class="tally" data-s="16">
+          <span><span class="n">${d.pending_sessions}</span> sessions, ${d.pending_mb} MB of transcripts</span>
+          <span class="rub" data-s="17">&rarr;</span>
+          <span data-s="17"><span class="n">${d.sealed}</span> digests, ${d.digest_kb_total} KB</span>
+          <span class="mut it" data-s="18">${count(d.totals.corrections, 'correction', 'corrections')} · ${count(d.totals.failures, 'tool failure', 'tool failures')} · ${count(d.totals.candidates, 'candidate memory', 'candidate memories')}</span>
+        </div>
+        <div class="caps">
+          ${cap(0, 9, 'i · /digest', 'A session is long, and most of it is tool output.')}
+          ${cap(9, 15, 'i · /digest', 'A worker reads it for your own words: what you corrected, repeated and decided.')}
+          ${cap(15, null, 'i · /digest', 'A digest is a few kilobytes, and it outlives the transcript. Only new sessions are digested next time.')}
+        </div>`;
+    },
+  },
+
+  // ------------------------------------------------------------------ where proposals come from
+  dream: {
+    h: 484, steps: 15, holds: { default: 420, 0: 1500, 1: 1000, 2: 1900, 3: 1700, 4: 800, 5: 1500, 6: 800, 7: 1900, 8: 1700, 9: 700, 10: 1500, 11: 1500, 12: 600, 13: 1600, 14: 3800 },
+    html(d) {
+      const P = Object.fromEntries(d.proposals.map(p => [p.file, p]));
+      const prop = (file, s) => { const p = P[file], [m, c] = MARK[p.action];
+        return `<div class="row" data-s="${s}"><span><em class="${c}">${m}</em>${esc(file)}</span></div>
+                <div class="foot" data-s="${s}" style="margin:-3px 0 4px 15px">${p.verb}${p.store === 'global' ? ', every project' : ''} · ${p.sessions} of ${p.of} sessions</div>`; };
+      const find = (s, html) => `<div class="find" data-s="${s}">${html}</div>`;
+      const digs = d.sessions.filter(s => s.project === 'acme-api');
+      return head(['0:done', '0:on', '99:on']) + `
+        <div class="three">
+          <div class="stack">
+            <fieldset class="box"><legend>memory</legend>${d.memory_before.map(f => `<div class="row"><span>${f}</span></div>`).join('')}</fieldset>
+            <fieldset class="box"><legend>digests</legend>${digs.map(s => `<div class="row"><span>${s.id}.md</span></div>`).join('')}</fieldset>
+          </div>
+          <fieldset class="box on"><legend>the dreamer reads all of it</legend>
+            <div class="verb" data-c="1:on:4,4:done"><h4>Verify<span>is each memory still true?</span></h4>
+              ${find(2, `deploy-steps.md says to promote by hand. On 4 Nov you said: <q>${esc(P['deploy-steps.md'].quote.replace('Stop. ', ''))}</q>`)}
+              ${find(3, `node-16-pin.md says keep Node 16. On 6 Nov: <q>We moved to Node 20 last month.</q>`)}
+            </div>
+            <div class="verb" data-c="4:on:6,6:done"><h4>Organize<span>is the index in order?</span></h4>
+              ${find(5, `Every file has one index line. <span class="it mut">Nothing to propose.</span>`)}
+            </div>
+            <div class="verb" data-c="6:on:10,10:done"><h4>Enrich<span>what did several sessions show?</span></h4>
+              ${find(7, `<q>${esc(P['run-tests-first.md'].quote)}</q> Said in ${P['run-tests-first.md'].sessions} of ${P['run-tests-first.md'].of} sessions. No memory holds it.`)}
+              ${find(8, `<q>${esc(P['ask-before-deleting.md'].quote)}</q> Said in two different projects.`)}
+            </div>
+          </fieldset>
+          <fieldset class="box" data-c="2:on"><legend>proposals</legend>
+            ${prop('deploy-steps.md', 2)}${prop('node-16-pin.md', 3)}${prop('run-tests-first.md', 7)}${prop('ask-before-deleting.md', 8)}
+            <div class="foot" data-s="11" style="margin-top:4px;white-space:normal">${d.n_proposals} proposals, ${d.problems} problems<br>${esc(d.report)}/review.html</div>
+          </fieldset>
+        </div>
+        <div class="caps">
+          ${cap(0, 10, 'ii · /dream', 'One dreamer per project reads the whole memory and every digest, and asks three questions.')}
+          ${cap(10, 13, 'ii · /dream', 'Every proposal carries the sessions it came from, and your words.')}
+          ${cap(13, null, 'ii · /dream', 'A dream only proposes. Nothing in your memory has changed. Next: you review.')}
+        </div>`;
+    },
+  },
+
+  // ------------------------------------------------------------------ what apply writes
+  apply: {
+    // 1-5 type the dry run, 6-9 its output, 11-15 type apply, 16-23 its output, 24-27 the index
+    h: 592, steps: 29, holds: { default: 260, 0: 1300, 9: 2200, 10: 500, 17: 1500, 20: 1300, 23: 2000, 24: 900, 25: 800, 26: 1100, 27: 1700, 28: 4000 },
+    html(d) {
+      const out = (l, s) => `<div class="out ${/: applied|done;/.test(l) ? 'ok' : ''}" data-s="${s}">${esc(l)}</div>`;
+      const dry = d.dry_run.map((l, i) => out(l, Math.min(6 + i, 9))).join('');
+      const ap = d.apply.map((l, i) => out(l, Math.min(16 + i, 23))).join('');
+      // an index line "- [Title](file.md) — hook" is shown as "file.md — hook"
+      const text = l => esc(l.replace(/^- \[[^\]]+\]\(([^)]+)\)/, '$1'));
+      const file = l => (l.match(/\]\(([^)]+)\)/) || [])[1];
+      const before = d.index_before.filter(l => l.startsWith('- ')), after = d.index_after.filter(l => l.startsWith('- '));
+      const idx = after.map(l => { const was = before.find(b => file(b) === file(l));
+        if (!was) return `<div class="idx" data-s="27"><span class="ins">${text(l)}</span></div>`;                    // a new file
+        if (was !== l) return `<div class="idx" data-s="24"><span data-c="25:del">${text(was)}</span></div>` +         // old line struck,
+                              `<div class="idx" data-s="26"><span class="ins">${text(l)}</span></div>`;                // new line written in
+        return `<div class="idx" data-s="24">${text(l)}</div>`; }).join('');
+      return head(['0:done', '0:done', '0:done']) + `
+        <fieldset class="box" style="flex:1;min-height:0"><legend>after you click finish</legend><div class="term">` +
+          `<div class="cmd" data-s="1"><span data-type="1:5" data-text="python tools/dreamctl.py apply --dry-run"></span></div>${dry}` +
+          `<div class="cmd" data-s="11" style="margin-top:5px"><span data-type="11:15" data-text="python tools/dreamctl.py apply"></span></div>${ap}</div></fieldset>
+        <div class="lower">
+          <fieldset class="box" data-c="24:on"><legend>memory.md, the index</legend>${idx}</fieldset>
+          <fieldset class="box" data-c="16:on:24"><legend>snapshot</legend>
+            <div class="foot" data-s="16" style="white-space:normal;font-style:normal;font-size:13px;color:var(--ink)">snapshots/${esc(d.stamp)}/</div>
+            <div class="foot" data-s="17" style="white-space:normal">${d.snapshot_files.length} files: the store exactly as it was. To undo, copy them back.</div>
+          </fieldset>
+        </div>
+        <div class="caps" style="height:50px">
+          ${cap(0, 11, 'apply', 'First a dry run: the plan, and nothing written.')}
+          ${cap(11, 24, 'apply', 'Then a snapshot of every store it will touch, and only what you accepted.')}
+          ${cap(24, null, 'apply', 'The index follows the files. What you rejected is still there, untouched.')}
+        </div>`;
+    },
+  },
+};
+
+// ------------------------------------------------------------------ the stepper
+let HOLDS = {};
+function sceneHeight(name) { return SCENES[name].h || 520; }
+function start(name, data) {
+  const sc = SCENES[name], frame = document.getElementById('frame');
+  frame.style.height = sceneHeight(name) + 'px';
+  frame.innerHTML = sc.html(data);
+  HOLDS = sc.holds;
+  step(0);
+  return sc.steps;
+}
+function step(i) {
+  document.querySelectorAll('[data-s]').forEach(el => {
+    const e = el.dataset.e === undefined ? Infinity : +el.dataset.e;
+    el.classList.toggle('shown', i >= +el.dataset.s && i < e);
+  });
+  document.querySelectorAll('[data-c]').forEach(el => el.dataset.c.split(',').forEach(rule => {
+    const [n, cls, until] = rule.split(':');
+    el.classList.toggle(cls, i >= +n && (until === undefined || i < +until));
+  }));
+  document.querySelectorAll('[data-type]').forEach(el => {
+    const [a, b] = el.dataset.type.split(':').map(Number), full = el.dataset.text;
+    const k = i < a ? 0 : i >= b ? full.length : Math.ceil(full.length * (i - a + 1) / (b - a + 1));
+    el.textContent = full.slice(0, k);
+    el.classList.toggle('typing', i >= a && i < b);
+  });
+  // The hold times above are written for comfortable reading; PACE scales them all at once.
+  // The last frame keeps a long hold so the loop has a clear pause.
+  const hold = HOLDS[i] === undefined ? HOLDS.default : HOLDS[i];
+  return hold >= 3000 ? 3000 : Math.round(hold * PACE);
+}
+const PACE = 0.66;
+</script>
+</body>
+</html>

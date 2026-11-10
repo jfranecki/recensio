@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dream review</title>
+<style>
+  :root {
+    --bg: #f6f5f1; --panel: #ffffff; --ink: #1d1d1b; --muted: #6b6a66; --line: #dedcd5;
+    --accept: #2f7d4f; --reject: #b33a3a; --skip: #8a7d2a; --accent: #4f46e5;
+    --add: #e8f5ec; --del: #fbe9e9; --chip: #ecebe6; --code: #f1f0ea;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #15161a; --panel: #1f2126; --ink: #ececea; --muted: #a2a29c; --line: #343640;
+      --add: #1f3a2a; --del: #46262a; --chip: #2a2c33; --code: #121317; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { position: sticky; top: 0; z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line); padding: 12px 20px; display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
+  header h1 { font-size: 18px; margin: 0; }
+  header .meta { color: var(--muted); font-size: 13px; }
+  header .counts { margin-left: auto; display: flex; gap: 10px; align-items: center; font-size: 14px; }
+  .pill { padding: 2px 10px; border-radius: 999px; background: var(--chip); }
+  .pill.acc { color: var(--accept); } .pill.rej { color: var(--reject); } .pill.skp { color: var(--skip); }
+  main { max-width: 1100px; margin: 0 auto; padding: 16px; }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 16px; }
+  .filters button { border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 999px; padding: 4px 12px; cursor: pointer; font-size: 13px; }
+  .filters button.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; margin-bottom: 14px; }
+  .card.accept { border-left: 6px solid var(--accept); } .card.reject { border-left: 6px solid var(--reject); opacity: .75; } .card.skip { border-left: 6px solid var(--skip); }
+  .top { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: baseline; }
+  .top h2 { font-size: 16px; margin: 0; }
+  .badge { font-size: 12px; padding: 2px 8px; border-radius: 6px; background: var(--chip); color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .badge.add { color: var(--accept); } .badge.update { color: var(--accent); } .badge.delete { color: var(--reject); }
+  .store { font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--muted); }
+  .summary { margin: 8px 0 4px; }
+  .why { color: var(--muted); font-size: 14px; margin: 0 0 8px; }
+  details { margin: 6px 0; }
+  summary { cursor: pointer; color: var(--accent); font-size: 14px; }
+  .evidence li { margin: 4px 0; font-size: 14px; }
+  .evidence .sid { font-family: ui-monospace, Consolas, monospace; color: var(--muted); font-size: 12px; }
+  pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; overflow: auto; font: 12.5px/1.45 ui-monospace, Consolas, monospace; white-space: pre-wrap; word-break: break-word; max-height: 480px; }
+  .diff .l { display: block; padding: 0 6px; }
+  .diff .add { background: var(--add); } .diff .del { background: var(--del); text-decoration: line-through; text-decoration-color: rgba(0,0,0,.25); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; align-items: center; }
+  .actions button { border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 14px; }
+  .actions button.acc { border-color: var(--accept); color: var(--accept); }
+  .actions button.rej { border-color: var(--reject); color: var(--reject); }
+  .actions button.skp { border-color: var(--skip); color: var(--skip); }
+  .actions button.on.acc { background: var(--accept); color: #fff; }
+  .actions button.on.rej { background: var(--reject); color: #fff; }
+  .actions button.on.skp { background: var(--skip); color: #fff; }
+  .actions .state { margin-left: auto; color: var(--muted); font-size: 13px; }
+  textarea { width: 100%; min-height: 220px; font: 12.5px/1.45 ui-monospace, Consolas, monospace; background: var(--code); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+  .edit { display: none; margin-top: 8px; } .edit.on { display: block; }
+  .finish { position: sticky; bottom: 0; background: var(--panel); border-top: 1px solid var(--line); padding: 12px 20px; display: flex; gap: 14px; align-items: center; }
+  .finish button { background: var(--accent); color: #fff; border: 0; border-radius: 8px; padding: 10px 18px; font-size: 15px; cursor: pointer; }
+  .finish .note { color: var(--muted); font-size: 13px; }
+  .done { text-align: center; padding: 60px 20px; font-size: 18px; }
+  .problems { background: var(--del); border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-bottom: 14px; }
+  .offline { color: var(--reject); font-size: 13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Dream review</h1>
+  <div class="meta" id="meta"></div>
+  <div class="counts">
+    <span class="pill" id="c-total"></span>
+    <span class="pill acc" id="c-acc"></span>
+    <span class="pill rej" id="c-rej"></span>
+    <span class="pill skp" id="c-skp"></span>
+    <span class="pill" id="c-pending"></span>
+  </div>
+</header>
+<main>
+  <div id="problems"></div>
+  <div class="filters" id="filters"></div>
+  <div id="cards"></div>
+</main>
+<div class="finish" id="finishbar">
+  <button id="finish">Finish review</button>
+  <span class="note">Every click is saved immediately. Finish tells the command to apply what you accepted.</span>
+  <span class="offline" id="offline"></span>
+</div>
+<script id="data" type="application/json">/*__PROPOSALS__*/null</script>
+<script>
+(function () {
+  const report = JSON.parse(document.getElementById('data').textContent);
+  const proposals = report ? report.proposals : [];
+  let decisions = {};
+  let online = true;
+  const filters = { store: 'all', action: 'all', state: 'all' };
+
+  const esc = s => String(s == null ? '' : s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+  // --- tiny line diff (LCS) -------------------------------------------------
+  function lineDiff(a, b) {
+    const A = (a || '').split('\n'), B = (b || '').split('\n');
+    const n = A.length, m = B.length;
+    if (n * m > 4e6) return [['ctx', '(diff too large; showing proposed only)'], ...B.map(l => ['add', l])];
+    const dp = Array.from({ length: n + 1 }, () => new Int32Array(m + 1));
+    for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--)
+      dp[i][j] = A[i] === B[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+    const out = []; let i = 0, j = 0;
+    while (i < n && j < m) {
+      if (A[i] === B[j]) { out.push(['ctx', A[i]]); i++; j++; }
+      else if (dp[i + 1][j] >= dp[i][j + 1]) { out.push(['del', A[i]]); i++; }
+      else { out.push(['add', B[j]]); j++; }
+    }
+    while (i < n) out.push(['del', A[i++]]);
+    while (j < m) out.push(['add', B[j++]]);
+    return out;
+  }
+  function renderDiff(cur, prop) {
+    return '<pre class="diff">' + lineDiff(cur, prop).map(([k, l]) =>
+      `<span class="l ${k}">${k === 'add' ? '+' : k === 'del' ? '-' : ' '} ${esc(l)}</span>`).join('') + '</pre>';
+  }
+
+  // --- server ---------------------------------------------------------------
+  async function post(path, body) {
+    try {
+      const r = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      if (!r.ok) throw new Error(r.status);
+      setOnline(true);
+      return await r.json();
+    } catch (e) { setOnline(false); return null; }
+  }
+  function setOnline(v) {
+    online = v;
+    document.getElementById('offline').textContent = v ? '' : 'Not connected to the review server: decisions are NOT being saved. Run /review again.';
+  }
+
+  // --- rendering --------------------------------------------------------------
+  function counts() {
+    const vals = Object.values(decisions);
+    const c = { accept: 0, reject: 0, skip: 0 };
+    vals.forEach(d => { if (c[d.decision] !== undefined) c[d.decision]++; });
+    document.getElementById('c-total').textContent = proposals.length + ' proposals';
+    document.getElementById('c-acc').textContent = c.accept + ' accepted';
+    document.getElementById('c-rej').textContent = c.reject + ' rejected';
+    document.getElementById('c-skp').textContent = c.skip + ' skipped';
+    document.getElementById('c-pending').textContent = (proposals.length - vals.length) + ' undecided';
+  }
+  function chip(group, value, label) {
+    const b = document.createElement('button');
+    b.textContent = label; b.dataset.group = group; b.dataset.value = value;
+    if (filters[group] === value) b.classList.add('on');
+    b.onclick = () => { filters[group] = value; renderFilters(); renderCards(); };
+    return b;
+  }
+  function renderFilters() {
+    const f = document.getElementById('filters'); f.innerHTML = '';
+    const stores = [...new Set(proposals.map(p => p.store))];
+    f.appendChild(chip('store', 'all', 'All stores'));
+    const label = s => (report.stores && report.stores[s] && report.stores[s].label) || s;
+    stores.forEach(s => f.appendChild(chip('store', s, label(s) + ' (' + proposals.filter(p => p.store === s).length + ')')));
+    const sep = document.createElement('span'); sep.style.width = '100%'; f.appendChild(sep);
+    ['all', 'add', 'update', 'delete'].forEach(a => f.appendChild(chip('action', a, a === 'all' ? 'All actions' : a)));
+    ['all', 'undecided', 'accept', 'reject', 'skip'].forEach(s => f.appendChild(chip('state', s, s === 'all' ? 'Any state' : s)));
+  }
+  function visible(p) {
+    if (filters.store !== 'all' && p.store !== filters.store) return false;
+    if (filters.action !== 'all' && p.action !== filters.action) return false;
+    const d = decisions[p.id] ? decisions[p.id].decision : 'undecided';
+    if (filters.state !== 'all' && d !== filters.state) return false;
+    return true;
+  }
+  function card(p) {
+    const d = decisions[p.id] || {};
+    const prev = p.prevalence && p.prevalence.sessions ? `${p.prevalence.sessions} of ${p.prevalence.of} sessions` : '';
+    const ev = (p.evidence || []).map(e =>
+      `<li><span class="sid">${esc((e.session || '').slice(0, 8))} ${esc(e.when || '')}</span> ${esc(e.quote || e.note || '')}</li>`).join('');
+    let body = '';
+    if (p.action === 'update') body = renderDiff(p.current, d.edited != null ? d.edited : p.proposed);
+    else if (p.action === 'add') body = `<pre>${esc(d.edited != null ? d.edited : p.proposed)}</pre>`;
+    else body = `<pre>${esc(p.current)}</pre>`;
+    const extra = p.index_line ? `<div class="store">index line: ${esc(p.index_line)}</div>` :
+                  p.import_line ? `<div class="store">import line: ${esc(p.import_line)}</div>` : '';
+    const el = document.createElement('section');
+    el.className = 'card ' + (d.decision || '');
+    el.id = 'card-' + p.id;
+    el.innerHTML = `
+      <div class="top">
+        <span class="badge ${p.action}">${p.action}</span>
+        <span class="badge">${esc(p.verb)}</span>
+        <span class="badge">${esc(p.confidence)}</span>
+        ${prev ? `<span class="badge">${prev}</span>` : ''}
+        <h2>${esc(p.title)}</h2>
+      </div>
+      <div class="store">${esc(p.store)} / ${esc(p.file)} ${p.note ? '· ' + esc(p.note) : ''}</div>
+      <p class="summary">${esc(p.summary)}</p>
+      <p class="why">${esc(p.rationale)}</p>
+      ${ev ? `<details><summary>Evidence (${(p.evidence || []).length})</summary><ul class="evidence">${ev}</ul></details>` : ''}
+      <details ${p.action === 'delete' ? '' : 'open'}><summary>${p.action === 'delete' ? 'File being archived' : p.action === 'update' ? 'Diff' : 'Proposed file'}</summary>${body}${extra}</details>
+      <div class="edit" id="edit-${p.id}"><textarea id="ta-${p.id}">${esc(d.edited != null ? d.edited : (p.proposed || ''))}</textarea>
+        <div class="actions"><button data-act="saveedit">Save edit and accept</button><button data-act="canceledit">Cancel</button></div></div>
+      <div class="actions">
+        <button class="acc ${d.decision === 'accept' ? 'on' : ''}" data-act="accept">Accept</button>
+        <button class="rej ${d.decision === 'reject' ? 'on' : ''}" data-act="reject">Reject</button>
+        <button class="skp ${d.decision === 'skip' ? 'on' : ''}" data-act="skip">Skip for now</button>
+        ${p.action !== 'delete' ? '<button data-act="edit">Edit text</button>' : ''}
+        <span class="state">${d.decision ? d.decision + (d.edited != null ? ' (edited)' : '') + ' · ' + esc(d.at || '') : 'undecided'}</span>
+      </div>`;
+    el.querySelectorAll('button[data-act]').forEach(b => b.onclick = () => act(p, b.dataset.act));
+    return el;
+  }
+  function renderCards() {
+    const c = document.getElementById('cards'); c.innerHTML = '';
+    const vis = proposals.filter(visible);
+    if (!vis.length) { c.innerHTML = '<p class="why">Nothing matches these filters.</p>'; return; }
+    vis.forEach(p => c.appendChild(card(p)));
+  }
+  async function act(p, what) {
+    if (what === 'edit') { document.getElementById('edit-' + p.id).classList.add('on'); return; }
+    if (what === 'canceledit') { document.getElementById('edit-' + p.id).classList.remove('on'); return; }
+    let payload = { id: p.id, decision: what };
+    if (what === 'saveedit') payload = { id: p.id, decision: 'accept', edited: document.getElementById('ta-' + p.id).value };
+    const r = await post('/decision', payload);
+    if (r && r.ok) {
+      decisions[p.id] = { decision: payload.decision, at: new Date().toISOString().slice(0, 16).replace('T', ' ') };
+      if (payload.edited != null) decisions[p.id].edited = payload.edited;
+    }
+    counts();
+    const old = document.getElementById('card-' + p.id);
+    if (old) old.replaceWith(card(p));
+  }
+  document.getElementById('finish').onclick = async () => {
+    const undecided = proposals.length - Object.keys(decisions).length;
+    if (undecided && !confirm(undecided + ' proposals are still undecided; they will be treated as skipped. Finish anyway?')) return;
+    const r = await post('/finish', {});
+    if (r && r.ok) {
+      document.querySelector('main').innerHTML = '<div class="done">Decisions saved. You can close this tab and go back to Claude Code; it will apply what you accepted.</div>';
+      document.getElementById('finishbar').style.display = 'none';
+    }
+  };
+
+  async function init() {
+    if (!report) { document.getElementById('meta').textContent = 'no proposals embedded'; return; }
+    document.getElementById('meta').textContent = `run ${report.run_id} · scope ${report.scope} · created ${report.created}`;
+    if (report.problems && report.problems.length)
+      document.getElementById('problems').innerHTML = '<div class="problems"><b>' + report.problems.length + ' proposals were dropped at assemble time:</b><br>' + report.problems.map(esc).join('<br>') + '</div>';
+    try { const r = await fetch('/decisions.json'); if (r.ok) { decisions = (await r.json()).decisions || {}; setOnline(true); } else setOnline(false); }
+    catch (e) { setOnline(false); }
+    counts(); renderFilters(); renderCards();
+  }
+  init();
+})();
+</script>
+</body>
+</html>

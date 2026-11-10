@@ -1,0 +1,36 @@
+{
+  "projects_root": "~/.claude/projects",
+  "global_store": "~/.claude/memories",
+  "user_claude_md": "~/.claude/CLAUDE.md",
+  "global_index_heading": "## Memories",
+  "exclude_name_patterns": [
+    "AppData-Local-Temp",
+    "^-private-var-folders-",
+    "^-var-folders-",
+    "^-private-tmp-",
+    "^-tmp-"
+  ],
+  "chunk_chars": 300000,
+  "digest_batch_agents": 45,
+  "active_session_minutes": 10,
+  "packet_warn_chars": 600000,
+  "digest_version": 1,
+  "workers": {
+    "digest": {
+      "model": "sonnet"
+    },
+    "dream": {
+      "model": "opus"
+    },
+    "global": {}
+  },
+  "caps": {
+    "user_turn_chars": 6000,
+    "assistant_block_chars": 2500,
+    "tool_input_chars": 200,
+    "tool_error_chars": 400,
+    "compact_summary_chars": 3000,
+    "subagent_error_entries": 60
+  },
+  "review_idle_minutes": 180
+}
